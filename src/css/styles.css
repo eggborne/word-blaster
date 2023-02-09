@@ -1,7 +1,108 @@
+:root {
+  --header-height: 4rem;
+  --primary-bg-color: #222;
+  --primary-text-color: #aaa;
+  --secondary-bg-color: rgb(79, 79, 79);
+  --secondary-text-color: rgb(240, 240, 240);
+}
+
 *, * *, * * * {
+  margin: 0;
   box-sizing: border-box;
 }
 
+button {
+  font-size: 1.5rem;
+  background-color: rgba(43, 68, 34, 0.5);
+  color: var(--primary-text-color);
+  border-radius: 0.5rem;
+}
+
 body {
-  background-color:cadetblue
-};
+  font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+  background-color: var(--primary-bg-color);
+  color: var(--primary-text-color);
+  overflow: hidden;
+}
+
+header {
+  width: 100vw;
+  height: var(--header-height);
+  background-color: var(--secondary-bg-color);
+  color: var(--secondary-text-color);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.5rem 1rem;
+}
+
+main {
+  min-height: 12rem;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#start-button {
+  align-self: stretch;
+  padding: 0 2rem;
+}
+
+h1 {
+  color: var(--secondary-text-color)
+}
+
+main, #input-display {
+  padding: 2rem;
+  display: flex;
+  justify-content: center;
+}
+
+.word-ship {
+  font-size: 3rem;
+  transition: scale 300ms ease;
+}
+
+.word-ship.defeated {
+  scale: 0;
+}
+
+.word-ship.targeted {
+  background-color: orange;
+}
+
+#input-display {
+  font-size: 2rem;
+  color: yellow;
+  transition: color 300ms ease, scale 300ms ease, opacity 300ms ease;
+}
+
+#input-display.correct {
+  color: green;
+  scale: 2;
+  opacity: 0;
+}
+
+#input-display.incorrect {
+  color: red;
+  scale: 2 1;
+  opacity: 0;
+}
+
+#level-clear-modal {
+  position: absolute;
+  width: 60rem;
+  height: 24rem;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  background-color: var(--secondary-bg-color);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 300ms ease;
+}
+
+#level-clear-modal.showing {
+  opacity: 1;
+  pointer-events: all;
+}
