@@ -85,6 +85,7 @@ main {
 #intro-message {
   font-size: 2rem;
   color: var(--primary-text-color);
+  margin-top: calc(var(--header-height) * 2);
 }
 
 #start-button, #intro-message {
@@ -111,12 +112,17 @@ main, #input-display {
 .word-ship {
   --descend-speed: 3000ms;
   position: absolute;
-  font-size: 3rem;
+  font-size: 2rem;
   transition: scale var(--animation-speed) ease, opacity var(--animation-speed) ease;
   padding: 1rem 1.5rem;
   display: flex;
   align-items: center;
   justify-content: flex-start;
+}
+
+.word-ship.bomb {
+  background-image: radial-gradient(rgb(49, 49, 49), rgb(0, 0, 0));
+  border-radius: 50%;
 }
 
 .word-ship.descending {
@@ -151,6 +157,16 @@ main, #input-display {
   opacity: 0;
 }
 
+.word-ship.detonated {
+  transition: scale calc(var(--animation-speed) / 2) ease, 
+  opacity calc(var(--animation-speed) / 2) ease,
+  background-color calc(var(--animation-speed) / 2) ease;
+  scale: 1.5;
+  opacity: 0;
+  background-image: unset;
+  background-color: orange;
+}
+
 .word-ship.targeted {
   color: rgb(220, 220, 220);
   text-shadow: 0 0 1rem rgb(0, 0, 0);
@@ -168,12 +184,13 @@ main, #input-display {
   height: var(--header-height);
   font-size: 2rem;
   color: yellow;
+  z-index: 2;
   transition: color 200ms ease, scale var(--animation-speed) ease, opacity 200ms ease;
 }
 
 #input-display.correct {
   color: green;
-  scale: 2;
+  scale:  0;
   opacity: 0;
 }
 
@@ -246,7 +263,7 @@ main, #input-display {
 .bullet {
   position: fixed;
   width: calc(var(--header-height) * 0.25);
-  height: calc(var(--header-height) * 0.25);
+  height: calc(var(--header-height) * 0.5);
   background-color: red;
   border-radius: 50%;
   z-index: 12;

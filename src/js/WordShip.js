@@ -7,6 +7,7 @@ export class WordShip {
     this.element.classList.add('word-ship');
     this.element.classList.add('obscured');
     this.element.classList.add('descending');
+    this.element.classList.add('bomb');
     if (randomInt(0, 1)) {
       this.element.style.transitionTimingFunction = 'ease-out';
     }
@@ -16,6 +17,7 @@ export class WordShip {
     this.element.append(this.focusLayer);
     document.querySelector('main').append(this.element);
     this.width = this.element.offsetWidth;
+    this.element.style.minHeight = this.width + 'px';
     this.element.style.left = randomInt(0, (window.innerWidth - this.width)) + 'px';
   }
 }

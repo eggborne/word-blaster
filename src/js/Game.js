@@ -87,9 +87,10 @@ export default class Game {
               this.aimTurret(ship);
               ship.focusLayer.innerText = this.playerInput;
               if (this.playerInput.length === ship.word.length) {
+                document.getElementById('input-display').innerText = this.playerInput;
+                document.getElementById('input-display').classList.add('correct');
                 ship.element.classList.add('frozen');
                 let flySpeed = this.fireBullet(ship);
-                console.log('flySpeed is', flySpeed)
                 await pause(flySpeed); // for bullet to fly
                 await this.destroyShip(ship, true);
                 if (ship.lastInWave && this.dictionaryEmpty()) {
@@ -103,7 +104,7 @@ export default class Game {
               ship.element.classList.remove('targeted');
               ship.focusLayer.classList.add('doomed');
               this.aimTurret(undefined, 0);
-              await this.showTypoAnimation();
+              this.showTypoAnimation();
               ship.focusLayer.classList.remove('doomed');
             }
           }
@@ -186,7 +187,6 @@ export default class Game {
 
   fireBullet(targetShip) {
     let turretElement = document.getElementById('main-turret');
-    let turretBarrelElement = document.querySelector('#main-turret > .turret-barrel');
     let bullet = document.createElement('div');
     let pointBlank = false;
     bullet.classList.add('bullet');
@@ -200,6 +200,7 @@ export default class Game {
       x: targetElement.offsetLeft + (targetShip.width / 2),
       y: targetElement.offsetTop + (targetElement.offsetHeight / 2),
     };
+    bullet.style.rotate = `${this.turretAngle}deg`;
     bullet.style.left = (turretPosition.x - (bullet.offsetWidth / 2)) + 'px';
     bullet.style.top = (turretPosition.y - (bullet.offsetHeight / 2)) + 'px';
     let moveXAmount = targetPosition.x - turretPosition.x;
@@ -226,15 +227,17 @@ export default class Game {
   async destroyShip(ship, creditPlayer) {
     this.targetedWordShips.splice(this.targetedWordShips.indexOf(ship), 1);
     this.activeWordShips.splice(this.activeWordShips.indexOf(ship), 1);
-    ship.element.classList.add('defeated');
     document.getElementById('input-display').innerText = this.playerInput;
     document.getElementById('input-display').classList.add('correct');
-    await pause(300);
     if (creditPlayer) {
       this.destroyedThisWave++;
       this.score += ship.word.length * this.level;
       document.getElementById('score-display').innerHTML = `Score: <p>${this.score}</p>`;
+      ship.element.classList.add('defeated');
+    } else {
+      ship.element.classList.add('detonated');
     }
+    await pause(300);
     ship.element.parentElement.removeChild(ship.element);
     document.getElementById('input-display').classList.remove('correct');
     document.getElementById('level-display').innerHTML = `Level ${this.level} <p>${this.getPercentageDone()}%</p>`;
