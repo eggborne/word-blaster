@@ -3,6 +3,7 @@ export default class WordShip {
     this.word = word;
     this.element = document.createElement('div');
     this.element.classList.add('word-ship');
+    this.element.classList.add('obscured');
     this.element.innerText = word;
     
   }

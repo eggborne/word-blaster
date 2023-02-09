@@ -36,6 +36,30 @@ header {
   padding: 0.5rem 1rem;
 }
 
+#level-display {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  width: 7rem;
+  font-size: 1.5rem;
+  display: flex;
+  justify-content: space-between;
+  transition: opacity 300ms ease, transform 300ms ease;
+}
+
+#level-display.hidden {
+  opacity: 0;
+  transform: translateY(1rem);
+  
+}
+
+#level-display > p {
+  color: rgba(0, 128, 0, 0.8);
+  font-weight: bold;
+  font-size: 1rem;
+  flex-grow: 0;
+}
+
 main {
   min-height: 12rem;
   display: flex;
@@ -46,6 +70,11 @@ main {
 #start-button {
   align-self: stretch;
   padding: 0 2rem;
+  transition: opacity 300ms ease;
+}
+
+#start-button.hidden {
+  opacity: 0;
 }
 
 h1 {
@@ -60,15 +89,24 @@ main, #input-display {
 
 .word-ship {
   font-size: 3rem;
-  transition: scale 300ms ease;
+  transition: scale 300ms ease, opacity 100ms ease;
+  padding: 1rem 1.5rem;
+}
+
+.word-ship.obscured {
+  scale: 1.2;
+  opacity: 0;
 }
 
 .word-ship.defeated {
+  transition: scale 300ms ease, opacity 300ms ease;
   scale: 0;
+  opacity: 0;
 }
 
 .word-ship.targeted {
-  background-color: orange;
+  color: rgb(220, 220, 220);
+  text-shadow: 0 0 1rem 1rem black;
 }
 
 #input-display {
@@ -91,12 +129,19 @@ main, #input-display {
 
 #level-clear-modal {
   position: absolute;
-  width: 60rem;
+  width: 40rem;
+  max-width: 100vw;
   height: 24rem;
+  max-height: 100vh;
   left: 50%;
   top: 50%;
   transform: translate(-50%, -50%);
   background-color: var(--secondary-bg-color);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
   opacity: 0;
   pointer-events: none;
   transition: opacity 300ms ease;
@@ -105,4 +150,12 @@ main, #input-display {
 #level-clear-modal.showing {
   opacity: 1;
   pointer-events: all;
+}
+
+#level-clear-modal > h1 {
+  font-size: 4rem;
+}
+
+#next-level-button {
+  padding: 2rem;
 }
