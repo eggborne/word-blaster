@@ -1,9 +1,12 @@
 :root {
+  --actual-height: 100vh;
   --header-height: 4rem;
   --primary-bg-color: #222;
   --primary-text-color: #aaa;
-  --secondary-bg-color: rgb(79, 79, 79);
+  --secondary-bg-color: rgb(21, 21, 21);
   --secondary-text-color: rgb(240, 240, 240);
+  --animation-speed: 300ms;
+  --descend-speed: 3000ms;
 }
 
 *, * *, * * * {
@@ -13,19 +16,24 @@
 
 button {
   font-size: 1.5rem;
-  background-color: rgba(43, 68, 34, 0.5);
-  color: var(--primary-text-color);
+  background-color: rgba(43, 68, 34);
+  color: var(--secondary-text-color);
   border-radius: 0.5rem;
 }
 
 body {
   font-family:'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
   background-color: var(--primary-bg-color);
+  height: var(--actual-height);
   color: var(--primary-text-color);
   overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: space-between;
 }
 
-header {
+header, footer {
   width: 100vw;
   height: var(--header-height);
   background-color: var(--secondary-bg-color);
@@ -34,6 +42,7 @@ header {
   align-items: center;
   justify-content: space-between;
   padding: 0.5rem 1rem;
+  z-index: 1;
 }
 
 #level-display {
@@ -44,7 +53,7 @@ header {
   font-size: 1.5rem;
   display: flex;
   justify-content: space-between;
-  transition: opacity 300ms ease, transform 300ms ease;
+  transition: opacity var(--animation-speed) ease, transform var(--animation-speed) ease;
 }
 
 #level-display.hidden {
@@ -61,16 +70,16 @@ header {
 }
 
 main {
-  min-height: 12rem;
-  display: flex;
+  /* display: flex;
   justify-content: center;
-  align-items: center;
+  align-items: center; */
+  flex-grow: 1;
 }
 
 #start-button {
   align-self: stretch;
   padding: 0 2rem;
-  transition: opacity 300ms ease;
+  transition: opacity var(--animation-speed) ease;
 }
 
 #start-button.hidden {
@@ -88,9 +97,25 @@ main, #input-display {
 }
 
 .word-ship {
+  position: absolute;
   font-size: 3rem;
-  transition: scale 300ms ease, opacity 100ms ease;
+  transition: scale var(--animation-speed) ease, opacity var(--animation-speed) ease;
   padding: 1rem 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.word-ship.descending {
+  animation: descend var(--descend-speed) ease-in forwards;
+}
+
+.word-ship > p {
+  position: absolute;
+}
+
+.word-ship > .focus-layer {
+  position: absolute;
 }
 
 .word-ship.obscured {
@@ -99,20 +124,29 @@ main, #input-display {
 }
 
 .word-ship.defeated {
-  transition: scale 300ms ease, opacity 300ms ease;
+  transition: scale var(--animation-speed) ease, opacity var(--animation-speed) ease;
   scale: 0;
   opacity: 0;
 }
 
 .word-ship.targeted {
   color: rgb(220, 220, 220);
-  text-shadow: 0 0 1rem 1rem black;
+  text-shadow: 0 0 1rem rgb(0, 0, 0);
+}
+
+.word-ship.targeted > .focus-layer {
+  color: rgb(0, 205, 0);
+}
+
+.word-ship > .focus-layer.doomed {
+  animation: flash-wrong 50ms infinite alternate
 }
 
 #input-display {
+  height: var(--header-height);
   font-size: 2rem;
   color: yellow;
-  transition: color 300ms ease, scale 300ms ease, opacity 300ms ease;
+  transition: color var(--animation-speed) ease, scale var(--animation-speed) ease, opacity var(--animation-speed) ease;
 }
 
 #input-display.correct {
@@ -127,15 +161,15 @@ main, #input-display {
   opacity: 0;
 }
 
-#level-clear-modal {
+.modal {
   position: absolute;
   width: 40rem;
   max-width: 100vw;
   height: 24rem;
   max-height: 100vh;
   left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
+  top: calc(var(--header-height) * 2);
+  transform: translate(-50%, 0);
   background-color: var(--secondary-bg-color);
   display: flex;
   flex-direction: column;
@@ -144,18 +178,90 @@ main, #input-display {
   gap: 2rem;
   opacity: 0;
   pointer-events: none;
-  transition: opacity 300ms ease;
+  transition: opacity var(--animation-speed) ease;
 }
 
-#level-clear-modal.showing {
+.modal.showing {
   opacity: 1;
   pointer-events: all;
 }
 
-#level-clear-modal > h1 {
+.modal > .modal-message {
   font-size: 4rem;
 }
 
-#next-level-button {
+.modal > .modal-details {
+  font-size: 1.2rem;
+}
+
+.modal button {
   padding: 2rem;
+}
+
+.turret {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  translate: -50% 0;
+  background-color: rgb(115, 111, 102);
+  width: calc(var(--header-height) * 2);
+  height: calc(var(--header-height) * 2);
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  transition: rotate 150ms ease;
+}
+
+.turret-barrel {
+  position: absolute;
+  width: calc(var(--header-height) * 0.25);
+  height: calc(var(--header-height) * 1.5);
+  background-color: inherit;
+  transition: translate 150ms ease;
+}
+
+.turret.aiming > .turret-barrel {
+  translate: 0 -50%;
+}
+
+footer {
+  align-items: center;
+  justify-content: center;
+  font-size: calc(var(--header-height) / 2);
+  font-weight: bold;
+  letter-spacing: 0.25rem;
+}
+
+#health-bar {
+  background-color: green;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  transform-origin: left;
+  transition: scale 300ms ease;
+}
+
+footer::after {
+  content: 'HEALTH';
+  position: absolute;
+  color:rgba(220, 220, 220, 0.6);
+  
+}
+
+@keyframes flash-wrong {
+  from {
+    color: unset;
+  }
+  to {
+    color: red;
+  }
+}
+
+@keyframes descend {
+  from {
+    top: var(--header-height);
+  }
+  to {
+    top: calc(var(--actual-height) - (var(--header-height) * 2));
+  }
 }

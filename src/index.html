@@ -13,9 +13,21 @@
 
   </main>
   <div id="input-display"></div>
-  <div id="level-clear-modal">
-    <h1 id="level-cleared-message"></h1>
-    <button id="next-level-button"></button>
+  <div id="main-turret" class="turret">
+    <div class="turret-barrel"></div>
   </div>
+  <div id="level-clear-modal" class="modal">
+    <h1 class="modal-message"></h1>
+    <p class="modal-details"></p>
+    <button class="modal-button" id="next-level-button"></button>
+  </div>
+  <div id="game-over-modal" class="modal">
+    <h1 class="modal-message"></h1>
+    <p class="modal-details"></p>
+    <button class="modal-button" id="restart-button"></button>
+  </div>
+  <footer>
+    <div id="health-bar"></div>
+  </footer>
 </body>
 </html>

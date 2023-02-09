@@ -29,14 +29,14 @@ describe('Game.prototype.matchesSoFar', () => {
   });
 });
 
-describe('Game.prototype.addWordsToDic', () => {
+describe('Game.prototype.addWordsToDictionary', () => {
 
   beforeEach(() => {
     game = new Game();    
   });
 
   test('should correctly add an entry to Game.dictionary based on wordLength and max parameters', () => {
-    game.addWordsToDic([
+    game.addWordsToDictionary([
       {word: 'add', score: 2393 },
       {word: 'box', score: 2393 },
       {word: 'off', score: 2393 },
@@ -46,12 +46,12 @@ describe('Game.prototype.addWordsToDic', () => {
   });
 
   test('should add an entry to Game.dictionary whose members all have length wordLength', () => {
-    game.addWordsToDic([
+    game.addWordsToDictionary([
       {word: 'add', score: 2393 },
       {word: 'box', score: 2393 },
       {word: 'off', score: 2393 },
     ], 3);
-    game.addWordsToDic([
+    game.addWordsToDictionary([
       {word: 'gala', score: 2393 },
       {word: 'frog', score: 2393 },
       {word: 'bold', score: 2393 },
@@ -76,7 +76,7 @@ describe('Game.prototype.dictionaryEmpty', () => {
 
   test('should correctly determine if game.dictionary is empty', () => {
     game = new Game();
-    game.addWordsToDic([
+    game.addWordsToDictionary([
       {word: 'add', score: 2393 },
       {word: 'box', score: 2393 },
       {word: 'off', score: 2393 },

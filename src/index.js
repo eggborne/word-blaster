@@ -2,6 +2,5 @@
 import './css/styles.css';
 import Game from '../src/js/Game';
 
-window.addEventListener('load', async () => {
-  new Game();
-});
+document.documentElement.style.setProperty('--actual-height', window.innerHeight + 'px');
+new Game();
