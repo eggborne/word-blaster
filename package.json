@@ -9,6 +9,9 @@
     "lint": "eslint src/*.js",
     "test": "jest --coverage"
   },
+  "jest": {
+    "verbose": false
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
