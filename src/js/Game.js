@@ -1,6 +1,6 @@
 import { getWords, getSentence } from './api.js';
-import WordShip from './WordShip';
-import { pause, randomInt } from './util.js';
+import { WordShip } from './WordShip';
+import { pause, randomInt, angleOfPointABFromXY, radToDeg } from './util.js';
 
 export default class Game {
   constructor() {
@@ -13,6 +13,7 @@ export default class Game {
     this.activeWordShips = [];
     this.targetedWordShips = [];
     this.usedWords = [];
+    this.turretAngle = 0;
     this.interval;
 
     this.animationSpeed = 300;
@@ -20,22 +21,22 @@ export default class Game {
     this.levelData = [
       undefined,
       {
-        wordsPerLengthInWave: 100,
+        wordsPerLengthInWave: 5,
         wordLengths: [3],
-        shipSpeed: 3000,
+        shipSpeed: 5000,
         launchFrequency: 2000,
       },
       {
         wordsPerLengthInWave: 4,
         wordLengths: [3, 4],
-        shipSpeed: 2800,
-        launchFrequency: 1900,
+        shipSpeed: 4000,
+        launchFrequency: 1000,
       },
       {
         wordsPerLengthInWave: 5,
         wordLengths: [4, 5, 6],
-        shipSpeed: 2600,
-        launchFrequency: 1800,
+        shipSpeed: 3500,
+        launchFrequency: 1000,
       },
     ];
 
@@ -45,7 +46,10 @@ export default class Game {
       e.preventDefault();
       e.target.disabled = true; // prevents Enter key 'clicking' it when invisible
       e.target.classList.add('hidden');
+      document.getElementById('intro-message').classList.add('hidden');
       document.getElementById('level-display').innerHTML = `Level ${this.level} <p>0%</p>`;
+      document.getElementById('score-display').innerHTML = `Score: <p>${this.score}</p>`;
+      document.getElementById('score-display').classList.remove('hidden');
       document.getElementById('level-display').classList.remove('hidden');
       await this.prepareDictionaryForLevel(this.level);
       this.startLevelSequence();
@@ -71,7 +75,8 @@ export default class Game {
               this.targetedWordShips.push(ship);
               ship.element.classList.add('targeted');
               document.getElementById('main-turret').classList.add('aiming');
-              // rotate to angleAway of target ship
+              this.aimTurret(ship);
+              ship.element.style.setProperty('--descend-speed', (this.levelData[this.level].shipSpeed) + 'ms');
               ship.focusLayer.innerText = this.playerInput;
             }
           }
@@ -79,10 +84,14 @@ export default class Game {
           for (const ship of this.targetedWordShips) {
             let matches = this.matchesSoFar(ship.word);
             if (matches) {
+              this.aimTurret(ship);
               ship.focusLayer.innerText = this.playerInput;
               if (this.playerInput.length === ship.word.length) {
-                this.destroyedThisWave++;
-                await this.destroyShip(ship);
+                ship.element.classList.add('frozen');
+                let flySpeed = this.fireBullet(ship);
+                console.log('flySpeed is', flySpeed)
+                await pause(flySpeed); // for bullet to fly
+                await this.destroyShip(ship, true);
                 if (ship.lastInWave && this.dictionaryEmpty()) {
                   this.displayLevelClearModal();
                 } else {
@@ -93,6 +102,7 @@ export default class Game {
               this.targetedWordShips.splice(this.targetedWordShips.indexOf(ship), 1);
               ship.element.classList.remove('targeted');
               ship.focusLayer.classList.add('doomed');
+              this.aimTurret(undefined, 0);
               await this.showTypoAnimation();
               ship.focusLayer.classList.remove('doomed');
             }
@@ -105,6 +115,12 @@ export default class Game {
         }
 
         document.getElementById('input-display').innerText = this.playerInput;
+      } else if (e.code === 'Space' || e.key === ' ') {
+        if (!document.getElementById('start-button').classList.contains('hidden')) {
+          document.getElementById('start-button').click();
+        } else if (!document.getElementById('next-level-button').classList.contains('hidden')) {
+          document.getElementById('next-level-button').click();
+        }
       }
     });
   }
@@ -120,8 +136,7 @@ export default class Game {
     this.targetedWordShips = [];
     document.getElementById('health-bar').style.scale = 1;
   }
-  
-  
+
   startLevelSequence() {
     this.launchWordShip();
     this.interval = setInterval(() => {
@@ -142,26 +157,88 @@ export default class Game {
     return Math.floor(100 - ((totalWordsLeft / totalWordsInRound) * 100));
   }
 
+  async aimTurret(targetShip, forceAngle) {
+    let turretElement = document.getElementById('main-turret');
+    let newAngle;
+    if (forceAngle !== undefined) {
+      newAngle = forceAngle;
+    } else {
+      let targetElement = targetShip.element;
+      let turretPosition = {
+        x: turretElement.offsetLeft,
+        y: turretElement.offsetTop,
+      };
+      let targetPosition = {
+        x: targetElement.offsetLeft + (targetShip.width / 2),
+        y: targetElement.offsetTop,
+      };
+      console.log('aiming from', turretPosition, 'to', targetPosition);
+      newAngle = radToDeg(angleOfPointABFromXY(
+        targetPosition.x,
+        targetPosition.y,
+        turretPosition.x,
+        turretPosition.y
+      ));
+    }
+    turretElement.style.rotate = `${newAngle}deg`;
+    this.turretAngle = newAngle;
+  }
+
+  fireBullet(targetShip) {
+    let turretElement = document.getElementById('main-turret');
+    let turretBarrelElement = document.querySelector('#main-turret > .turret-barrel');
+    let bullet = document.createElement('div');
+    let pointBlank = false;
+    bullet.classList.add('bullet');
+    document.querySelector('main').append(bullet);
+    let targetElement = targetShip.element;
+    let turretPosition = {
+      x: turretElement.offsetLeft,
+      y: turretElement.offsetTop + (turretElement.offsetHeight / 2),
+    };
+    let targetPosition = {
+      x: targetElement.offsetLeft + (targetShip.width / 2),
+      y: targetElement.offsetTop + (targetElement.offsetHeight / 2),
+    };
+    bullet.style.left = (turretPosition.x - (bullet.offsetWidth / 2)) + 'px';
+    bullet.style.top = (turretPosition.y - (bullet.offsetHeight / 2)) + 'px';
+    let moveXAmount = targetPosition.x - turretPosition.x;
+    let moveYAmount = targetPosition.y - turretPosition.y;
+    bullet.style.translate = `${moveXAmount}px ${moveYAmount}px`;
+    if (Math.abs(moveYAmount) < window.innerHeight / 2) {
+      console.log('closer bullet moves faster!')
+      bullet.style.transitionDuration = '300ms';
+      pointBlank = true;
+    }
+    bullet.addEventListener('transitionend', (e) => {
+      e.target.parentElement.removeChild(e.target);
+    });
+    return pointBlank ? 300 : 600;
+  }
+
   async showTypoAnimation() {
     document.getElementById('input-display').innerText = this.playerInput;
     document.getElementById('input-display').classList.add('incorrect');
-    await pause(300);
+    await pause(200);
     document.getElementById('input-display').classList.remove('incorrect');
   }
 
-  async destroyShip(ship) {
+  async destroyShip(ship, creditPlayer) {
     this.targetedWordShips.splice(this.targetedWordShips.indexOf(ship), 1);
     this.activeWordShips.splice(this.activeWordShips.indexOf(ship), 1);
     ship.element.classList.add('defeated');
     document.getElementById('input-display').innerText = this.playerInput;
     document.getElementById('input-display').classList.add('correct');
     await pause(300);
-    this.score += ship.word.length * this.level;
-    document.getElementById('score-display').innerText = this.score;
+    if (creditPlayer) {
+      this.destroyedThisWave++;
+      this.score += ship.word.length * this.level;
+      document.getElementById('score-display').innerHTML = `Score: <p>${this.score}</p>`;
+    }
     ship.element.parentElement.removeChild(ship.element);
     document.getElementById('input-display').classList.remove('correct');
     document.getElementById('level-display').innerHTML = `Level ${this.level} <p>${this.getPercentageDone()}%</p>`;
-    
+
   }
 
   async fillDictionary(wordLength, max) {
@@ -210,6 +287,7 @@ export default class Game {
   launchWordShip() {
     let newWord = this.selectRandomWord();
     let newWordShip = new WordShip(newWord);
+    newWordShip.element.style.setProperty('--descend-speed', this.levelData[this.level].shipSpeed + 'ms');
     this.activeWordShips.push(newWordShip);
     if (this.dictionaryEmpty()) {
       newWordShip.lastInWave = true;
@@ -220,7 +298,7 @@ export default class Game {
     newWordShip.element.addEventListener('animationend', (e) => {
       this.destroyShip(newWordShip);
       if (this.health - (newWordShip.word.length * 10) > 0) {
-        this.health -= newWordShip.word.length * 10;
+        this.health -= newWordShip.word.length * 2;
         document.getElementById('health-bar').style.scale = `${this.health}% 1`;
       } else {
         document.getElementById('health-bar').style.scale = `0 1`;
@@ -263,7 +341,6 @@ export default class Game {
     this.level = newLevel;
     document.getElementById('level-display').innerHTML = `Level ${this.level} <p>0%</p>`;
     this.destroyedThisWave = 0;
-    document.documentElement.style.setProperty('--descend-speed', this.levelData[this.level].shipSpeed + 'ms');
     await this.prepareDictionaryForLevel(this.level);
     this.startLevelSequence();
   }
@@ -278,7 +355,7 @@ export default class Game {
   displayGameOverModal() {
     document.getElementById("game-over-modal").classList.add("showing");
     document.querySelector("#game-over-modal > .modal-message").innerText = `GAME OVER`;
-    document.getElementById("restart-button").innerText = `Restart`; 
+    document.getElementById("restart-button").innerText = `Restart`;
   }
 
   async prepareDictionaryForLevel(level) {

@@ -6,7 +6,6 @@
   --secondary-bg-color: rgb(21, 21, 21);
   --secondary-text-color: rgb(240, 240, 240);
   --animation-speed: 300ms;
-  --descend-speed: 3000ms;
 }
 
 *, * *, * * * {
@@ -56,10 +55,9 @@ header, footer {
   transition: opacity var(--animation-speed) ease, transform var(--animation-speed) ease;
 }
 
-#level-display.hidden {
+#level-display.hidden, #score-display.hidden {
   opacity: 0;
   transform: translateY(1rem);
-  
 }
 
 #level-display > p {
@@ -69,6 +67,14 @@ header, footer {
   flex-grow: 0;
 }
 
+#score-display {
+  font-size: 1.5rem;
+  min-width: 9rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
 main {
   /* display: flex;
   justify-content: center;
@@ -76,13 +82,19 @@ main {
   flex-grow: 1;
 }
 
-#start-button {
+#intro-message {
+  font-size: 2rem;
+  color: var(--primary-text-color);
+}
+
+#start-button, #intro-message {
   align-self: stretch;
   padding: 0 2rem;
   transition: opacity var(--animation-speed) ease;
 }
 
-#start-button.hidden {
+#start-button.hidden,
+#intro-message.hidden {
   opacity: 0;
 }
 
@@ -97,6 +109,7 @@ main, #input-display {
 }
 
 .word-ship {
+  --descend-speed: 3000ms;
   position: absolute;
   font-size: 3rem;
   transition: scale var(--animation-speed) ease, opacity var(--animation-speed) ease;
@@ -123,6 +136,15 @@ main, #input-display {
   opacity: 0;
 }
 
+.word-ship.frozen {
+  animation-play-state: paused;
+  text-shadow: none !important;
+}
+
+.word-ship.frozen > .focus-layer {
+  color: red !important;
+}
+
 .word-ship.defeated {
   transition: scale var(--animation-speed) ease, opacity var(--animation-speed) ease;
   scale: 0;
@@ -146,7 +168,7 @@ main, #input-display {
   height: var(--header-height);
   font-size: 2rem;
   color: yellow;
-  transition: color var(--animation-speed) ease, scale var(--animation-speed) ease, opacity var(--animation-speed) ease;
+  transition: color 200ms ease, scale var(--animation-speed) ease, opacity 200ms ease;
 }
 
 #input-display.correct {
@@ -210,6 +232,7 @@ main, #input-display {
   display: flex;
   justify-content: center;
   transition: rotate 150ms ease;
+  z-index: 1;
 }
 
 .turret-barrel {
@@ -218,6 +241,17 @@ main, #input-display {
   height: calc(var(--header-height) * 1.5);
   background-color: inherit;
   transition: translate 150ms ease;
+}
+
+.bullet {
+  position: fixed;
+  width: calc(var(--header-height) * 0.25);
+  height: calc(var(--header-height) * 0.25);
+  background-color: red;
+  border-radius: 50%;
+  z-index: 12;
+  transition: translate 600ms linear;
+  z-index: 0;
 }
 
 .turret.aiming > .turret-barrel {
