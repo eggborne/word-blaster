@@ -8,7 +8,7 @@ export default class Game {
     this.score = 0;
     this.destroyedThisWave = 0;
     this.health = 100;
-    this.level = 1;
+    this.level = 4;
     this.dictionary = {};
     this.activeWordShips = [];
     this.targetedWordShips = [];
@@ -24,19 +24,25 @@ export default class Game {
         wordsPerLengthInWave: 5,
         wordLengths: [3],
         shipSpeed: 5000,
-        launchFrequency: 2000,
+        launchFrequency: 1000,
       },
       {
         wordsPerLengthInWave: 4,
         wordLengths: [3, 4],
         shipSpeed: 4000,
-        launchFrequency: 1000,
+        launchFrequency: 900,
       },
       {
         wordsPerLengthInWave: 5,
         wordLengths: [4, 5, 6],
         shipSpeed: 3500,
-        launchFrequency: 1000,
+        launchFrequency: 800,
+      },
+      {
+        wordsPerLengthInWave: 6,
+        wordLengths: [5, 6, 7],
+        shipSpeed: 3200,
+        launchFrequency: 750,
       },
     ];
 
@@ -91,8 +97,8 @@ export default class Game {
                 document.getElementById('input-display').classList.add('correct');
                 ship.element.classList.add('frozen');
                 let flySpeed = this.fireBullet(ship);
-                await pause(flySpeed); // for bullet to fly
-                await this.destroyShip(ship, true);
+                await pause(flySpeed);
+                this.destroyShip(ship, true);
                 if (ship.lastInWave && this.dictionaryEmpty()) {
                   this.displayLevelClearModal();
                 } else {
